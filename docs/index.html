@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Victor, a sprite-based SHMUP - A blog about learning, teaching, and intuition.</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+
+<body id="Viktor">
+
+<nav>
+<section>
+    <span class="home">
+        <a href="/">Home</a>
+    </span>
+    <span class="links">
+        <a href="/blog/">Blog</a>
+        <a href="/about/">About</a>
+    </span>
+</section>
+</nav>
+
+<main>
+<article>
+<h1><a href="/{{ blog }}/Viktor/">Victor, a sprite-based SHMUP</a></h1>
+<p class="meta">Published on 2020-12-20 by <b>David Norton</b></p>
+<p>In 2019 I wrote Viktor, a sprite-based shoot-em-up (SHMUP) drawing inspiration from 1942 and Galaga.<br />
+(code is <a href="https://github.com/NortySpock/Viktor">here</a>, play it <a href="https://nortyspock.github.io/Viktor">here</a>.)</p>
+<p>This was again written in Javascript, using <a href="https://p5js.org/">P5.js</a> as the base library again and adding <a href="https://molleindustria.github.io/p5.play/">P5.play</a> for sprite and animation handling.</p>
+<hr />
+<p>Neat things I ran into working on this project:  <br/></p>
+<ul>
+<li>
+<p>p5.play's vanilla version was not updated to support images correctly beyond p5.js v0.5.4 (Released October 01, 2016).</p>
+<ul>
+<li>I chose to use the vanilla version of p5.play with the older p5.js v0.5.4, rather than patch it to another, later, arbitrary p5.js version.</li>
+</ul>
+</li>
+<li>
+<p>I added a particle engine.</p>
+<ul>
+<li>I played around with a few different ways to store the particles
+<ul>
+<li>Originally it was pushing onto the end of the array and splicing out particles when they reached the end of their time-to-live</li>
+<li>But as discussed in the Asteroids blog post, this is expensive compute work (n to 2n) to save (say) a kilobyte of memory</li>
+<li>I then adjusted the renderer to just not display particles that had passed their time-to-live, and made the size of the array fixed</li>
+<li>this means we're no longer allocating and de-allocating memory, we're just incrementing our way along a fixed array and updating and displaying only live particles</li>
+<li>Computer science (and engineering) is mostly about tradeoffs, and in this case we're increasing memory usage by a few kilobytes in order to save on processor time.</li>
+<li>Additionally I simplified the code by just iterating over the array and not modifying it; trading increased memory and compute (iterating over the full length of the array) for less complex code.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Adding the particle engine meant I wanted to use it a lot, so I:</p>
+<ul>
+<li>added shields (popping the shield just used the particle effect again)</li>
+<li>added a slight warning puff of particles when an enemy was about to burst on the screen
+<ul>
+<li>This is an example of the Game AI maxim &quot;The best Game AIs are ones that the player can understand, not necessarily technically brilliant.&quot;</li>
+</ul>
+</li>
+<li>Used particles for bullets annihilating each other and chipping armor off an enemy.
+<ul>
+<li>This required me to know what the color of the sprite was before I spawned particles off of it
+<ul>
+<li>so once-per-frame (60 frames per second) I'd check a single sprite to see if I needed to get the particle color to be used for a sprite, and then get it if necessary.</li>
+<li>Since &quot;get pixel color at this coordinate&quot; was relatively expensive, again, I needed to keep it to an as-needed, once per frame basis.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>I do think this particle system really added to the feel of the game and made it feel more active and lively</li>
+</ul>
+</li>
+<li>
+<p>While I want to avoid flashing lights (for people who have epilepsy), there is a single frame that flashes the screen when you beat the boss.</p>
+<ul>
+<li>I thought this was a fair tradeoff: it cements the game finale and hides the boss ship transition to a wrecked boss ship.</li>
+</ul>
+</li>
+<li>
+<p>I re-used the sound manager which was so successful in the Asteroids clone</p>
+</li>
+<li>
+<p>the moving background stars are not actually particles, they are a separate system.</p>
+<ul>
+<li>I debated putting them together but I think this would over-complicate the particle system, since background stars are reused and particles are (mostly) not</li>
+</ul>
+</li>
+</ul>
+<p>Screenshot of the game:<p>
+<img src="/pics/Viktor-screenshot.png" alt="screenshot of Viktor, a SHMUP" /></p>
+<h4>Takeaways</h4>
+<ul>
+<li>SHMUPs are fun and an excellent way to get into game development</li>
+<li>Particles are easy, fun to add, and quickly add a bit of energy to the game; just don't overdo it.</li>
+<li>I'm not going to be making any money off of this game (it's 10 minutes long) but I learned some cool tricks and have a cool finished project to show off as well.</li>
+<li>I worked with my son on the sprite artwork, and it's cool that he now has a published work given that he is in middle school at the time of writing.</li>
+</ul>
+
+</article>
+
+</main>
+
+<footer>
+<section>
+<p>&copy; 2020 David Norton</p>
+<p>
+    <a href="https://github.com/NortySpock">GitHub</a>
+    <a href="https://www.linkedin.com/in/david-norton-4b156a2b/">LinkedIn</a>
+</p>
+</section>
+</footer>
+
+</body>
+</html>

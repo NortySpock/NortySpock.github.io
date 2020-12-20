@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+
+<channel>
+<title>Blog</title>
+<link>http://localhost:8000/</link>
+<description>Grow with Technology</description>
+
+<item>
+<title>Victor, a sprite-based SHMUP</title>
+<link>http://localhost:8000/blog/Viktor/</link>
+<description>
+<![CDATA[
+<p>
+In 2019 I wrote Viktor, a sprite-based shoot-em-up (SHMUP) drawing inspiration from 1942 and Galaga. (code is here , play it here .) This was&nbsp;<a href="http://localhost:8000/blog/Viktor/">...</a>
+</p>
+<p><a href="http://localhost:8000/blog/Viktor/">Read More</a></p>
+]]>
+</description>
+<pubDate>Sun, 20 Dec 2020 00:00:00 +0000</pubDate>
+</item>
+<item>
+<title>Asteroids in P5.js</title>
+<link>http://localhost:8000/blog/Asteroids/</link>
+<description>
+<![CDATA[
+<p>
+Back in 2018 I wrote an Asteroids clone using P5.js . (code is here , play it here .) The code was written in Javascript.&nbsp;<a href="http://localhost:8000/blog/Asteroids/">...</a>
+</p>
+<p><a href="http://localhost:8000/blog/Asteroids/">Read More</a></p>
+]]>
+</description>
+<pubDate>Fri, 18 Dec 2020 00:00:00 +0000</pubDate>
+</item>
+
+
+</channel>
+</rss>

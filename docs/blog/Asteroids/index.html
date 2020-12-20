@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Asteroids in P5.js - A blog about learning, teaching, and intuition.</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+
+<body id="Asteroids">
+
+<nav>
+<section>
+    <span class="home">
+        <a href="/">Home</a>
+    </span>
+    <span class="links">
+        <a href="/blog/">Blog</a>
+        <a href="/about/">About</a>
+    </span>
+</section>
+</nav>
+
+<main>
+<article>
+<h1><a href="/blog/Asteroids/">Asteroids in P5.js</a></h1>
+<p class="meta">Published on 2020-12-18 by <b>David Norton</b></p>
+<p>Back in 2018 I wrote an Asteroids clone using <a href="https://p5js.org/">P5.js</a>. (code is <a href="https://github.com/NortySpock/asteroids-p5/">here</a>, play it <a href="https://nortyspock.github.io/asteroids-p5/">here</a>.)</p>
+<p>The code was written in Javascript.</p>
+<p>I was inspired to create it mostly because I was tired of beating my head against the wall trying to come up with &quot;the next big thing&quot; to do for a side project.</p>
+<p>Additionally, I realized the following:</p>
+<ul>
+<li>the classic video games of the '80s were small enough to be created by 1 person: all of the design, code, graphics, and sound were something that could be done in a few months to a year   <p></li>
+<li>I'm happy as an enterprise software developer in my dayjob, but going home to do more enterprise software work was not going to be a fun hobby.</li>
+</ul>
+<p>Thus, making '80s video game clones might be a good way to keep me on my toes and coding interesting problems in my spare time.</p>
+<hr />
+<p>Neat things I ran into working on this project:  <br/></p>
+<ul>
+<li>
+<p>I made a sound manager to keep track of all the sounds that should be played for a frame of the game</p>
+<ul>
+<li>Any time a sound needs to be played, the code calls a function in the sound manager and just pushes the name of the sound onto the queue.</li>
+<li>This nicely decoupled playing the sound from the main game loop.</li>
+<li>This could be further de-coupled into a global event queue but it wasn't needed for a game this small.</li>
+</ul>
+</li>
+<li>
+<p>The best &quot;feeling&quot; bullets crossed the screen twice and then disappeared at the edges. It was not based on a time-of-flight or anything else, just how often it had crossed either the left-right wraparound or the up-down wraparound  <p></p>
+</li>
+<li>
+<p>The ship had to have a custom offset for its center-of-rotation (center-of-gravity) to feel right</p>
+</li>
+<li>
+<p>Using Array.splice to remove objects is adequate for getting started, but could be doing something like &quot;creates a copy of the array minus what you are removing&quot; to do so and thus is costing you 2n in terms of memory and n in terms of CPU time, and we'll see that come up in a later project.<p></p>
+<ul>
+<li>Different JavaScript engines handle it differently under the hood it seems, so take this with a grain of salt.</li>
+<li>this ends up being &quot;ok&quot; for small lists but would get expensive if you had a lot of objects in the list, of course.</li>
+</ul>
+</li>
+</ul>
+<p>Screenshot of the game:<p>
+<img src="/pics/asteroids-p5-screenshot.png" alt="screenshot of my asteroids clone" /></p>
+<h4>Footnotes:</h4>
+<p>Some suggested inspirational talks:</p>
+<ul>
+<li>Ed Logg, original game developer  of Gauntlet talks about his game (<a href="https://www.youtube.com/watch?v=YbEw8J4pbC4">video link</a>)</li>
+<li>&quot;Failing to Fail: The Spiderweb Software Way&quot;  with Jeff Vogel (<a href="https://www.youtube.com/watch?v=stxVBJem3Rs">video link</a>)</li>
+<li>Jumpstarting Your Creativity: From Hobbyist to Professional by Tribe Games' Charles McGregor (<a href="https://www.youtube.com/watch?v=Zzxf9pWpWx4">video link</a>)</li>
+</ul>
+<p>Further quick looks at array splice performance by others: <p>
+<a href="https://www.freecodecamp.org/news/lets-clear-up-the-confusion-around-the-slice-splice-split-methods-in-javascript-8ba3266c29ae/">https://www.freecodecamp.org/news/lets-clear-up-the-confusion-around-the-slice-splice-split-methods-in-javascript-8ba3266c29ae/</a> <p>
+<a href="https://medium.com/javascript-in-plain-english/how-to-remove-a-specific-item-from-an-array-in-javascript-a49b108404c">https://medium.com/javascript-in-plain-english/how-to-remove-a-specific-item-from-an-array-in-javascript-a49b108404c</a> <p></p>
+
+</article>
+
+</main>
+
+<footer>
+<section>
+<p>&copy; 2020 David Norton</p>
+<p>
+    <a href="https://github.com/NortySpock">GitHub</a>
+    <a href="https://www.linkedin.com/in/david-norton-4b156a2b/">LinkedIn</a>
+</p>
+</section>
+</footer>
+
+</body>
+</html>

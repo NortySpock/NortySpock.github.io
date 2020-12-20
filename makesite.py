@@ -182,11 +182,11 @@ def make_list(posts, dst, list_layout, item_layout, **params):
 
 
 def main():
-    # Create a new _site directory from scratch.
-    if os.path.isdir('_site'):
-        shutil.rmtree('_site')
-    shutil.copytree('static', '_site')
-    shutil.copytree('pics', '_site/pics')
+    # Create a new docs directory from scratch.
+    if os.path.isdir('docs'):
+        shutil.rmtree('docs')
+    shutil.copytree('static', 'docs')
+    shutil.copytree('pics', 'docs/pics')
 
     # Default parameters.
     params = {
@@ -214,26 +214,26 @@ def main():
     list_layout = render(page_layout, content=list_layout)
 
     # Create site pages.
-    make_pages('content/[!_]*.html', '_site/{{ slug }}/index.html',
+    make_pages('content/[!_]*.html', 'docs/{{ slug }}/index.html',
                page_layout, **params)
 
     # Create blogs.
     blog_posts = make_pages('content/blog/*.md',
-                            '_site/blog/{{ slug }}/index.html',
+                            'docs/blog/{{ slug }}/index.html',
                             post_layout, blog='blog', **params)
 
     # Create blog list pages.
-    make_list(blog_posts, '_site/blog/index.html',
+    make_list(blog_posts, 'docs/blog/index.html',
               list_layout, item_layout, blog='blog', title='Blog', **params)
 
     #create index page as just the most recent blog post
-    use_blog_item_as_home_page(blog_posts[0], '_site/index.html',
+    use_blog_item_as_home_page(blog_posts[0], 'docs/index.html',
                post_layout, **params)
 
     # Create RSS feeds.
-    make_list(blog_posts, '_site/blog/rss.xml',
+    make_list(blog_posts, 'docs/blog/rss.xml',
               feed_xml, item_xml, blog='blog', title='Blog', **params)
-    # make_list(news_posts, '_site/news/rss.xml',
+    # make_list(news_posts, 'docs/news/rss.xml',
               # feed_xml, item_xml, blog='news', title='News', **params)
 
 
