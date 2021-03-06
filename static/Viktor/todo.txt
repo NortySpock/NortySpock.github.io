@@ -1,0 +1,28 @@
+Bugs
+--------------------
+
+
+Short term
+---------------------
+Write a new sound for the other enemy shots
+
+Long term
+----------------------
+Large enemy ships with health
+Cookies with high-score list
+Attract / Demo mode
+Command Pattern for Player to allow flexibility for Attract / Demo mode (waypoint system?)
+Powerup Management System
+- Card deck draw style system
+-- so you don't get totally screwed by the RNG
+- types
+-- shield
+-- extra life
+-- missiles
+-- shotgun blast
+-- minion
+-- bomb
+
+sounds
+----------------------------
+env.setADSR(0.1,0.1,.5,0.1) //white or pink noise. Sounds like a candle being blown out
