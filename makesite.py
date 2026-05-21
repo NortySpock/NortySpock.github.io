@@ -35,7 +35,9 @@ import glob
 import sys
 import json
 import datetime
-
+import argparse
+import time
+import webbrowser
 
 def fread(filename):
     """Read file and close the file."""
@@ -178,8 +180,19 @@ def make_list(posts, dst, list_layout, item_layout, **params):
     log('Rendering list => {} ...', dst_path)
     fwrite(dst_path, output)
 
+def source_mtime():
+    """Return the latest mtime of all source inputs."""
+    mtimes = []
+    for src in ('content', 'layout', 'static', 'pics'):
+        for root, _, files in os.walk(src):
+            for f in files:
+                mtimes.append(os.path.getmtime(os.path.join(root, f)))
+    for f in ('params.json', 'makesite.py'):
+        if os.path.isfile(f):
+            mtimes.append(os.path.getmtime(f))
+    return max(mtimes) if mtimes else 0
 
-def main():
+def delete_and_rebuild():
     # Create a new docs directory from scratch.
     if os.path.isdir('docs'):
         shutil.rmtree('docs')
@@ -234,6 +247,32 @@ def main():
     # make_list(news_posts, 'docs/news/rss.xml',
               # feed_xml, item_xml, blog='news', title='News', **params)
 
+
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--monitor-for-changes', action='store_true')
+    parser.add_argument('--open', action='store_true', help='Open site in browser')
+    args = parser.parse_args()
+
+    url = 'http://localhost:4000'
+    if args.open:
+       webbrowser.open(url, new=2)
+
+    delete_and_rebuild()
+
+    if args.monitor_for_changes:
+        last_modified_time = source_mtime()
+        while True:
+            time.sleep(1)
+            new_last_modified_time = source_mtime()
+            if last_modified_time != new_last_modified_time:
+                last_modified_time = new_last_modified_time
+                log('Changes detected, rebuilding...')
+                delete_and_rebuild()
+                if args.open:
+                   webbrowser.open(url, new=2)
 
 
 if __name__ == '__main__':
