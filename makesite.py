@@ -101,8 +101,6 @@ def read_content(filename):
     # Convert Markdown content to HTML.
     if filename.endswith(('.md', '.mkd', '.mkdn', '.mdown', '.markdown')):
         try:
-            if _test == 'ImportError':
-                raise ImportError('Error forced by test')
             import commonmark
             text = commonmark.commonmark(text)
         except ImportError as e:
@@ -157,7 +155,7 @@ def use_blog_item_as_home_page(blogitem, dst, layout, **params):
         rendered_content = render(page_params['content'], **page_params)
         page_params['content'] = rendered_content
         blogitem['content'] = rendered_content
- 
+
     dst_path = render(dst, **page_params)
     output = render(layout, **page_params)
 
@@ -236,9 +234,6 @@ def main():
     # make_list(news_posts, 'docs/news/rss.xml',
               # feed_xml, item_xml, blog='news', title='News', **params)
 
-
-# Test parameter to be set temporarily by unit tests.
-_test = None
 
 
 if __name__ == '__main__':
