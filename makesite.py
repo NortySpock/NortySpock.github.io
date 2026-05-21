@@ -192,7 +192,7 @@ def source_mtime():
             mtimes.append(os.path.getmtime(f))
     return max(mtimes) if mtimes else 0
 
-def delete_and_rebuild():
+def delete_and_rebuild(cache_bust=False):
     # Create a new docs directory from scratch.
     if os.path.isdir('docs'):
         shutil.rmtree('docs')
@@ -204,8 +204,9 @@ def delete_and_rebuild():
         'base_path': '',
         'subtitle': 'A blog about learning, teaching, and intuition.',
         'author': 'David Norton',
-        'site_url': 'http://localhost:8000',
-        'current_year': datetime.datetime.now().year
+        'site_url': 'http://localhost:4000',
+        'current_year': datetime.datetime.now().year,
+        'css_cache_bust': f'?v={int(time.time())}' if cache_bust else '',
     }
 
     # If params.json exists, load it.
@@ -260,7 +261,8 @@ def main():
     if args.open:
        webbrowser.open(url, new=2)
 
-    delete_and_rebuild()
+    cache_bust = bool(args.monitor_for_changes)
+    delete_and_rebuild(cache_bust=cache_bust)
 
     if args.monitor_for_changes:
         last_modified_time = source_mtime()
@@ -270,7 +272,7 @@ def main():
             if last_modified_time != new_last_modified_time:
                 last_modified_time = new_last_modified_time
                 log('Changes detected, rebuilding...')
-                delete_and_rebuild()
+                delete_and_rebuild(cache_bust=cache_bust)
                 if args.open:
                    webbrowser.open(url, new=2)
 

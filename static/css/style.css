@@ -143,3 +143,9 @@ div .more {
 .rss:hover, .rss:active {
     background: #ff8822;
 }
+
+pre {
+    background: #f5f5f5;
+    padding: 1em;
+    overflow-x: auto;
+}
