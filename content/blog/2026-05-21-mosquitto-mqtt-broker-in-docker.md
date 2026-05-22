@@ -162,6 +162,14 @@ To insert some test records, you could use
 ### Step 8: make your container even more stateless
 Set the docker compose volumes to readonly (ro) rather than read-write(rw), which would make your message broker entirely ephemeral.
 
+
+### But... Why?
+...I wanted to run a separate container for the MQTT broker
+
+...because I didn't want the broker to be baked solely into Home Assistant
+
+...because I wanted to run other experiments on MQTT without risking taking down Home Assistant.
+
 --------------------
 
 _note: I originally published this in the SelfHosted Show Wiki (the commit says 2024-10-23), and I figured I would republish it here if anyone found it covenient._

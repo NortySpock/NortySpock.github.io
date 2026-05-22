@@ -38,6 +38,16 @@ import datetime
 import argparse
 import time
 import webbrowser
+import http.server
+import socketserver
+import threading
+
+class DocsHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory='docs', **kwargs)
+
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
 
 def fread(filename):
     """Read file and close the file."""
@@ -252,19 +262,28 @@ def delete_and_rebuild(cache_bust=False):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--monitor-for-changes', action='store_true')
-    parser.add_argument('--open', action='store_true', help='Open site in browser')
+    port = 4000
+    parser = argparse.ArgumentParser(description='Builds website from the markdown files in the `content/` folder')
+    parser.add_argument('--monitor-for-changes', action='store_true', help='Monitors for changes and rebuilds website for rapid prototyping.')
+    parser.add_argument('--open', action='store_true', help='Opens site in browser; new tab if content changes')
+    parser.add_argument('--serve', action='store_true', help=f'Serve docs/ folder on port {port}. Not for production use.')
     args = parser.parse_args()
 
-    url = 'http://localhost:4000'
+    cache_bust = bool(args.monitor_for_changes)
+
+    url = f'http://localhost:{port}'
+
+    delete_and_rebuild(cache_bust=cache_bust)
+
+    if args.serve:
+        httpd = ReusableTCPServer(('', port), DocsHandler)
+        threading.Thread(target=httpd.serve_forever, daemon=True).start()
+        log(f'Serving on {url}')
+
     if args.open:
        webbrowser.open(url, new=2)
 
-    cache_bust = bool(args.monitor_for_changes)
-    delete_and_rebuild(cache_bust=cache_bust)
-
-    if args.monitor_for_changes:
+    if args.monitor_for_changes and args.serve:
         last_modified_time = source_mtime()
         while True:
             time.sleep(1)
@@ -276,6 +295,15 @@ def main():
                 if args.open:
                    webbrowser.open(url, new=2)
 
+    # if we wanted to serve but not monitor for file changes,
+    # we need to spin to hold the daemon server open
+    if (not args.monitor_for_changes) and args.serve:
+            # Keep main thread alive so the daemon server thread survives
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                pass #user requested end, we hit end of program and daemon server thread dies
 
 if __name__ == '__main__':
     main()
