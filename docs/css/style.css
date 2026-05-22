@@ -30,7 +30,7 @@ a:hover, a:active {
 
 /* Single column layout */
 nav section, header section, main, footer section {
-    max-width: 40em;
+    max-width: 55em;
     margin-left: auto;
     margin-right: auto;
     padding: 0 0.5em;
@@ -142,4 +142,10 @@ div .more {
 
 .rss:hover, .rss:active {
     background: #ff8822;
+}
+
+pre,code {
+    background: #f5f5f5;
+    padding: 0.1em;
+    overflow-x: auto;
 }

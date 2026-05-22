@@ -240,7 +240,7 @@ def delete_and_rebuild(cache_bust=False):
 
     #create index page as just the most recent blog post
     use_blog_item_as_home_page(blog_posts[0], 'docs/index.html',
-               post_layout, **params)
+               post_layout, blog='blog', **params)
 
     # Create RSS feeds.
     make_list(blog_posts, 'docs/blog/rss.xml',

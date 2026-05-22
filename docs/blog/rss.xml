@@ -3,31 +3,44 @@
 
 <channel>
 <title>Blog</title>
-<link>http://localhost:8000/</link>
+<link>http://localhost:4000/</link>
 <description>Grow with Technology</description>
 
 <item>
-<title>Victor, a sprite-based SHMUP</title>
-<link>http://localhost:8000/blog/Viktor/</link>
+<title>Ephemeral Mosquitto MQTT broker in Docker</title>
+<link>http://localhost:4000/blog/mosquitto-mqtt-broker-in-docker/</link>
 <description>
 <![CDATA[
 <p>
-In 2019 I wrote Viktor, a sprite-based shoot-em-up (SHMUP) drawing inspiration from 1942 and Galaga. (code is here , play it here .) This was&nbsp;<a href="http://localhost:8000/blog/Viktor/">...</a>
+Setup It is possible to setup a nearly-stateless MQTT broker in docker, with password security. This required a few steps that were annoying to stub&nbsp;<a href="http://localhost:4000/blog/mosquitto-mqtt-broker-in-docker/">...</a>
 </p>
-<p><a href="http://localhost:8000/blog/Viktor/">Read More</a></p>
+<p><a href="http://localhost:4000/blog/mosquitto-mqtt-broker-in-docker/">Read More</a></p>
+]]>
+</description>
+<pubDate>Thu, 21 May 2026 00:00:00 +0000</pubDate>
+</item>
+<item>
+<title>Victor, a sprite-based SHMUP</title>
+<link>http://localhost:4000/blog/Viktor/</link>
+<description>
+<![CDATA[
+<p>
+In 2019 I wrote Viktor, a sprite-based shoot-em-up (SHMUP) drawing inspiration from 1942 and Galaga. (code is here , play it here .) This was&nbsp;<a href="http://localhost:4000/blog/Viktor/">...</a>
+</p>
+<p><a href="http://localhost:4000/blog/Viktor/">Read More</a></p>
 ]]>
 </description>
 <pubDate>Sun, 20 Dec 2020 00:00:00 +0000</pubDate>
 </item>
 <item>
 <title>Asteroids in P5.js</title>
-<link>http://localhost:8000/blog/Asteroids/</link>
+<link>http://localhost:4000/blog/Asteroids/</link>
 <description>
 <![CDATA[
 <p>
-Back in 2018 I wrote an Asteroids clone using P5.js . (code is here , play it here .) The code was written in Javascript.&nbsp;<a href="http://localhost:8000/blog/Asteroids/">...</a>
+Back in 2018 I wrote an Asteroids clone using P5.js . (code is here , play it here .) The code was written in Javascript.&nbsp;<a href="http://localhost:4000/blog/Asteroids/">...</a>
 </p>
-<p><a href="http://localhost:8000/blog/Asteroids/">Read More</a></p>
+<p><a href="http://localhost:4000/blog/Asteroids/">Read More</a></p>
 ]]>
 </description>
 <pubDate>Fri, 18 Dec 2020 00:00:00 +0000</pubDate>
