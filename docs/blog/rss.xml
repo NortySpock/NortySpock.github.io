@@ -7,6 +7,19 @@
 <description>Grow with Technology</description>
 
 <item>
+<title>Ephemeral NATS MQTT broker in Docker</title>
+<link>http://localhost:4000/blog/nats-mqtt-broker-in-docker/</link>
+<description>
+<![CDATA[
+<p>
+Why? Though I had gotten Mosquitto MQTT broker working and it was successfully passing messages back and forth from Home Assistant, I still had nagging&nbsp;<a href="http://localhost:4000/blog/nats-mqtt-broker-in-docker/">...</a>
+</p>
+<p><a href="http://localhost:4000/blog/nats-mqtt-broker-in-docker/">Read More</a></p>
+]]>
+</description>
+<pubDate>Sun, 24 May 2026 00:00:00 +0000</pubDate>
+</item>
+<item>
 <title>Ephemeral Mosquitto MQTT broker in Docker</title>
 <link>http://localhost:4000/blog/mosquitto-mqtt-broker-in-docker/</link>
 <description>

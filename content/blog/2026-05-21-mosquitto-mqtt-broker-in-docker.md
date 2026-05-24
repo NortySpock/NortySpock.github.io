@@ -8,7 +8,7 @@ This required a few steps that were annoying to stub my toe on trying to figure 
 
 Here, I have attempted to list them all out.
 
-### Step 0: Be aware that Mosquitto usernames/passwords are sent to the broker in clear text
+### Step 0: Be aware that Mosquitto (MQTT) usernames/passwords are sent to the broker in clear text
 Per this [link](http://www.steves-internet-guide.com/mqtt-username-password-example/), username and password are sent in clear text
 
 The only way around this is to enable some transport-level security.
