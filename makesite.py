@@ -54,6 +54,10 @@ def fread(filename):
     with open(filename, 'r') as f:
         return f.read()
 
+#color codes
+RED = '\033[91m'
+RESET = '\033[0m'
+
 
 def fwrite(filename, text):
     """Write content to file and close the file."""
@@ -258,8 +262,36 @@ def delete_and_rebuild(cache_bust=False):
     # make_list(news_posts, 'docs/news/rss.xml',
               # feed_xml, item_xml, blog='news', title='News', **params)
 
+#This is a fairly brittle check, I guess, but it does work
+def check_links(docs_dir='docs'):
+    from html.parser import HTMLParser
 
+    class LinkParser(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.links = []
+        def handle_starttag(self, tag, attrs):
+            if tag == 'a':
+                self.links.extend(v for k, v in attrs if k == 'href')
 
+    broken = []
+    for root, _, files in os.walk(docs_dir):
+        for f in files:
+            if not f.endswith('.html'):
+                continue
+            path = os.path.join(root, f)
+            base = os.path.dirname(path)
+            parser = LinkParser()
+            parser.feed(fread(path))
+            for link in set(parser.links):
+                if '://' in link or link.startswith(('#', 'mailto:', 'tel:', 'data:', 'javascript:')):
+                    continue
+                target = os.path.join(docs_dir, link.lstrip('/')) if link.startswith('/') else os.path.normpath(os.path.join(base, link))
+                if not any(os.path.exists(t) for t in (target, target + '.html', os.path.join(target, 'index.html'))):
+                    broken.append((path, link))
+    for path, link in broken:
+        log('{}BROKEN LINK: {} -> {}{}', RED, path, link, RESET)
+    return broken
 
 def main():
     port = 4000
@@ -267,6 +299,7 @@ def main():
     parser.add_argument('--monitor-for-changes', action='store_true', help='Monitors for changes and rebuilds website for rapid prototyping.')
     parser.add_argument('--open', action='store_true', help='Opens site in browser; new tab if content changes')
     parser.add_argument('--serve', action='store_true', help=f'Serve docs/ folder on port {port}. Not for production use.')
+    parser.add_argument('--check', action='store_true', help='Check internal blog post links for typos')
     args = parser.parse_args()
 
     cache_bust = bool(args.monitor_for_changes)
@@ -274,6 +307,9 @@ def main():
     url = f'http://localhost:{port}'
 
     delete_and_rebuild(cache_bust=cache_bust)
+
+    if args.check:
+        check_links()
 
     if args.serve:
         httpd = ReusableTCPServer(('', port), DocsHandler)
@@ -292,6 +328,8 @@ def main():
                 last_modified_time = new_last_modified_time
                 log('Changes detected, rebuilding...')
                 delete_and_rebuild(cache_bust=cache_bust)
+                if args.check:
+                    check_links()
                 if args.open:
                    webbrowser.open(url, new=2)
 
