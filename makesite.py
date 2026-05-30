@@ -194,7 +194,7 @@ def make_list(posts, dst, list_layout, item_layout, **params):
     log('Rendering list => {} ...', dst_path)
     fwrite(dst_path, output)
 
-def source_mtime():
+def max_source_file_modification_time():
     """Return the latest mtime of all source inputs."""
     mtimes = []
     for src in ('content', 'layout', 'static', 'pics'):
@@ -320,10 +320,10 @@ def main():
        webbrowser.open(url, new=2)
 
     if args.monitor_for_changes and args.serve:
-        last_modified_time = source_mtime()
+        last_modified_time = max_source_file_modification_time()
         while True:
             time.sleep(1)
-            new_last_modified_time = source_mtime()
+            new_last_modified_time = max_source_file_modification_time()
             if last_modified_time != new_last_modified_time:
                 last_modified_time = new_last_modified_time
                 log('Changes detected, rebuilding...')
