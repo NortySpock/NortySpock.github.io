@@ -263,7 +263,7 @@ def delete_and_rebuild(cache_bust=False):
               # feed_xml, item_xml, blog='news', title='News', **params)
 
 #This is a fairly brittle check, I guess, but it does work
-def check_links(docs_dir='docs'):
+def check_internal_links(docs_dir='docs'):
     from html.parser import HTMLParser
 
     class LinkParser(HTMLParser):
@@ -309,7 +309,7 @@ def main():
     delete_and_rebuild(cache_bust=cache_bust)
 
     if args.check:
-        check_links()
+        check_internal_links()
 
     if args.serve:
         httpd = ReusableTCPServer(('', port), DocsHandler)
@@ -329,7 +329,7 @@ def main():
                 log('Changes detected, rebuilding...')
                 delete_and_rebuild(cache_bust=cache_bust)
                 if args.check:
-                    check_links()
+                    check_internal_links()
                 if args.open:
                    webbrowser.open(url, new=2)
 
