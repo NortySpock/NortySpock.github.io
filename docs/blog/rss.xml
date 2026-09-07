@@ -7,6 +7,19 @@
 <description>Grow with Technology</description>
 
 <item>
+<title>Back to Mosquitto MQTT for v5</title>
+<link>http://localhost:4000/blog/back-to-mosquitto-mqtt-for-v5/</link>
+<description>
+<![CDATA[
+<p>
+Why? My Home Assistant instance started throwing warnings about an upcoming deprecation of support for MQTT protocol version 3.1.1 and migration to MQTT protocol version&nbsp;<a href="http://localhost:4000/blog/back-to-mosquitto-mqtt-for-v5/">...</a>
+</p>
+<p><a href="http://localhost:4000/blog/back-to-mosquitto-mqtt-for-v5/">Read More</a></p>
+]]>
+</description>
+<pubDate>Sun, 06 Sep 2026 00:00:00 +0000</pubDate>
+</item>
+<item>
 <title>Ephemeral NATS MQTT broker in Docker</title>
 <link>http://localhost:4000/blog/nats-mqtt-broker-in-docker/</link>
 <description>
