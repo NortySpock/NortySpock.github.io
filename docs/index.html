@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Running a code companion on a 2080 Ti - A blog about learning, teaching, and intuition.</title>
+    <title>Running a language model on an AMD Radeon HD 8330E iGPU - A blog about learning, teaching, and intuition.</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
 
-<body id="running-a-code-companion-on-a-2080-Ti">
+<body id="running-a-language-model-on-an-AMD-Radeon-HD-8330E-iGPU">
 
 <nav>
 <section>
@@ -23,35 +23,91 @@
 
 <main>
 <article>
-<h1><a href="/blog/running-a-code-companion-on-a-2080-Ti/">Running a code companion on a 2080 Ti</a></h1>
-<p class="meta">Published on 2026-09-25 by <b>David Norton</b></p>
-<p>I've been looking for a model that can read code quickly and provide a summary. Mostly because at the moment I'm often digging into unfamiliar code in an unfamilar language and trying to get my bearings. <em>(&quot;What on earth does this code do?&quot;)</em> I am not looking for a wizard, just a helpful chatbot.</p>
-<p><em>Blurb: NeoHorse-1-4B is post-trained from Qwen3.5-4B for text-based agent harnesses, tool use, coding, and instruction following.</em></p>
-<p>My hardware:</p>
-<pre><code>Intel i5-7600K 3.8GHz (quad-core)
-48 GB DDR4 running at 2133 MT/s (recently expanded from 16 GB, yay!)
-Nvidia RTX 2080 Ti (11 GB vram)
+<h1><a href="/blog/running-a-language-model-on-an-AMD-Radeon-HD-8330E-iGPU/">Running a language model on an AMD Radeon HD 8330E iGPU</a></h1>
+<p class="meta">Published on 2026-10-14 by <b>David Norton</b></p>
+<h3>What?</h3>
+<p>Running Qwen2.5-0.5B-Instruct-GGUF:Q8_0 on a AMD Radeon HD 8330E at 7.1 generated tokens per second</p>
+<p>This GPU is a weaker cousin of the GPU on the (2013) Xbox One.</p>
+<h3>HW Specs</h3>
+<p>This is running on a Dell WYSE 7020 Thin Client ZX0Q, which I use as a light-duty server</p>
+<ul>
+<li>Quad-core AMD GX-415GA at 1.5 GHz</li>
+<li>AMD Radeon HD 8330E integrated GPU, using what looks like slightly under 512MB for VRAM</li>
+<li>16 GB DDR3 (2x8GB SODIMM, running at 1600 MT/s, 64 bit data bus width)</li>
+</ul>
+<h3>Why?</h3>
+<p>To see if I can! All that GPU hardware is just sitting idle anyways...</p>
+<h3>How?</h3>
+<p>Well, I had an LLM talk me through it...</p>
+<p>The neat thing is, llama.cpp can work with Vulkan 1.2, and this GPU supports it. In fact, a lot of GPUs, even some integrated GPUs like this one, support it.</p>
+<p>For starters, I got this up and running in Docker on the CPU, but that only got 1 token per second, so I moved on to figuring out how to switch to the <code>vulkan</code> version of the llama server image.</p>
+<ol>
+<li>Install firmware-amd-graphics and radeontop for monitoring with <code>sudo apt install firmware-amd-graphics radeontop</code></li>
+<li>set linux kernel modprobe configs to use the new amd driver (and <em>not</em> the radeon driver)</li>
+</ol>
+<pre><code># bash
+echo 'options amdgpu cik_support=1' | sudo tee /etc/modprobe.d/amdgpu.conf
+echo 'blacklist radeon' | sudo tee /etc/modprobe.d/radeon.conf
+sudo update-initramfs -u -k all
+sudo reboot
 </code></pre>
-<p>Using the Zed editor (and using the default prompt provided by Zed), I asked Neohorse repeatedly to explain various files worth of Beyond All Reason's Lua code to me, until I hit around 100k tokens of context consumed. By then I was <strong>still</strong> getting <strong>775</strong> prompt-processing t/s followed by <strong>28</strong> generated t/s. Very useable!</p>
-<p>Max context was configured at 128k tokens. Model and kv quantized at q8_0</p>
-<p>My experience: I didn't ask it to write code, just read some code and either explain it or point out the interesting bits. The bits it pointed out were indeed interesting and the explanations were in the right ballpark. Not always spot on, and it didn't catch some things that looked wrong until I pointed it out (i.e. <a href="https://github.com/beyond-all-reason/Beyond-All-Reason/blob/master/luarules/gadgets/unit_transportee_hider.lua#L100">https://github.com/beyond-all-reason/Beyond-All-Reason/blob/master/luarules/gadgets/unit_transportee_hider.lua#L100</a> looks like it could in theory go below zero and fail to register a full transport ).</p>
-<p>NeoHorse was able to search gitHub when local tool calls &quot;failed&quot; (it seems to not know about grep and entirely failed to run <code>git --no-pager diff master</code>, instead confusing it with &quot;query the GitHub API&quot; even though I literally gave it that exact command to run).</p>
-<p>Not the most clever model (I'm used to OpenRouter DeepSeek v4 flash or Kimi 2.7 Code) but hey, it runs quick on my machine and gives me a basic tool for code review and research with a usable context window. I'll definitely keep it around for light use and initial exploration.</p>
-<p>llama serve command:</p>
-<pre><code>llama serve -ngl 999 -np 1 \
--ctk q8_0 -ctv q8_0 \
--c 128000   \
---temp 0.6  --top-p 0.95    \
---top-k 20  --min_p 0.0 \
---presence-penalty 1.5 --repeat-penalty 1.0  \
--fa on --no-mmproj-offload    \
---model ~/.cache/huggingface/hub/models--TokenRhythm--NeoHorse-1-4B-GGUF/snapshots/3c5d58ca82e580b5b0b3ce6eeffd34ac7d0fd95a/NeoHorse-1-4B-Q8_0.gguf \
---jinja --chat-template-file  ~/neohorse_chat_template.jinja.txt 
+<p>After reboot, <code>lsmod | grep amdgpu</code> should show several <code>amdgpu</code> entries (and presumably no radeon entries).</p>
+<ol start="3">
+<li>I decided to place the whole thing in a docker compose file, since nearly everything else on the server is in docker compose, so I ended up with the following</li>
+</ol>
+<pre><code># docker-compose.yml
+
+services:
+    llama-serve:
+      command: [          
+          '-hf', 'bartowski/Qwen2.5-0.5B-Instruct-GGUF:Q8_0', # about 531 megabytes
+          '-c', '32768',
+          '--host', '0.0.0.0',
+          '--port', '8080',
+          '-ngl', '999',
+          '-np', '2',
+          '-ctk', 'f16',
+          '-ctv', 'f16',
+          '--temp', '1.0',
+          '--top-k', '40',
+          '--top-p', '0.9',
+          '--min-p', '0.05',
+          '--repeat-penalty', '1.05',
+          '--frequency-penalty','1.05',
+          '--presence-penalty','1.05',
+          '--kv-unified',
+          '-fa', 'on',
+          '--no-mmproj-offload',
+          '--reasoning', 'off']
+
+      image: 'ghcr.io/ggml-org/llama.cpp:server-vulkan' 
+      restart: no    #turned off to avoid the countainer thrashing if GPU unavailable
+      mem_limit: 10G
+      cpus: 2
+      environment:
+          # where llama server will store 
+          - LLAMA_CACHE=/root/.cache/llama.cpp
+      devices:
+          - /dev/dri
+      ports:
+        - target: 8080 
+          published: 8090 
+          protocol: tcp
+
+      volumes:         
+          - '/host/path/to/models:/root/.cache/llama.cpp' 
+
+          # the container's side of the path is managed by the LLAMA_CACHE variable described above
+          # I believe LLAMA_CACHE needs to be defined 
+          # for the `-hf` hugging face repository naming convention to be usable.
+ 
 </code></pre>
-<p>HuggingFace link: <a href="https://huggingface.co/TokenRhythm/NeoHorse-1-4B-GGUF">https://huggingface.co/TokenRhythm/NeoHorse-1-4B-GGUF</a> q8_0 quant is listed as 4.48 GB</p>
-<p>nvidia-smi reports that llama is using 7312MiB of VRAM to do this.</p>
-<p>Thanks to <code>u/zippydazoop</code> for mentioning NeoHorse-1-4B!</p>
-<p>The original post:  <a href="https://www.reddit.com/r/LowEndLocalAI/comments/1wdhp3a/i_tested_20_local_models_on_a_4_gb_laptop_gpu/">https://www.reddit.com/r/LowEndLocalAI/comments/1wdhp3a/i_tested_20_local_models_on_a_4_gb_laptop_gpu/</a></p>
+<p><em>Note:  I had tried LiquidAI/LFM2.5-350M and that ran at about 20 generated tokens per second, but it really <strong>really</strong> expects to use tool-calls and I just had no tools for it to call, so it would refuse to answer without a temperature of '2.0' ... Qwen 0.5B is bigger and slower to generate tokens on this hardware, but is far more willing to jump in and answer the user's question without tooling.</em></p>
+<h3>Results</h3>
+<p>It worked!</p>
+<p>In the end, Qwen2.5-0.5B , with Q8_0 model quantization,  f16 K/V cache quantization, and a max context of 32,768 tokens, gives me 7.1 tokens generated per second early in the conversation.</p>
+<p>I tried smaller quants and the intelligence rapidly degraded, so I left the model and KV cache quantization as large as I could manage.</p>
+<p>Running <code>sudo radeontop</code> does indeed show memory usage at 467M / 491M VRAM (95.21%) , 694M / 7705M GTT (9.00%), and a graphics pipe utilization bouncing between 93% and 97% when generating tokens . Looking at docker stats, the container shows a memory utilization (at low context usage) of 130MB . Apparently the video RAM (VRAM) and Graphics Translation Table (GTT) don't count towards docker's listed memory usage. Something to keep in mind I guess, not to assume that the docker stats for the container tell the whole story.</p>
 
 </article>
 

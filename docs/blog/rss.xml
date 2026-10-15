@@ -7,6 +7,19 @@
 <description>Grow with Technology</description>
 
 <item>
+<title>Running a language model on an AMD Radeon HD 8330E iGPU</title>
+<link>http://localhost:4000/blog/running-a-language-model-on-an-AMD-Radeon-HD-8330E-iGPU/</link>
+<description>
+<![CDATA[
+<p>
+What? Running Qwen2.5-0.5B-Instruct-GGUF:Q8_0 on a AMD Radeon HD 8330E at 7.1 generated tokens per second This GPU is a weaker cousin of the GPU on&nbsp;<a href="http://localhost:4000/blog/running-a-language-model-on-an-AMD-Radeon-HD-8330E-iGPU/">...</a>
+</p>
+<p><a href="http://localhost:4000/blog/running-a-language-model-on-an-AMD-Radeon-HD-8330E-iGPU/">Read More</a></p>
+]]>
+</description>
+<pubDate>Wed, 14 Oct 2026 00:00:00 +0000</pubDate>
+</item>
+<item>
 <title>Running a code companion on a 2080 Ti</title>
 <link>http://localhost:4000/blog/running-a-code-companion-on-a-2080-Ti/</link>
 <description>
