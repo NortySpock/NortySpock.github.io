@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Running a language model on an AMD Radeon HD 8330E iGPU - A blog about learning, teaching, and intuition.</title>
+    <title>How to make your Tasmota smart lightbulb turn on reliably - A blog about learning, teaching, and intuition.</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
 
-<body id="running-a-language-model-on-an-AMD-Radeon-HD-8330E-iGPU">
+<body id="making-the-smart-light-bulb-turn-on-when-you-flip-the-switch">
 
 <nav>
 <section>
@@ -23,97 +23,34 @@
 
 <main>
 <article>
-<h1><a href="/blog/running-a-language-model-on-an-AMD-Radeon-HD-8330E-iGPU/">Running a language model on an AMD Radeon HD 8330E iGPU</a></h1>
-<p class="meta">Published on 2026-10-14 by <b>David Norton</b></p>
-<h3>What?</h3>
-<p>Running Qwen2.5-0.5B-Instruct-GGUF:Q8_0 on an AMD Radeon HD 8330E at 7.1 generated tokens per second</p>
-<p>This GPU is a weaker cousin of the GPU on the (2013) Xbox One.</p>
-<h3>HW Specs</h3>
-<p>This is running on a Dell WYSE 7020 Thin Client ZX0Q, which I use as a light-duty server</p>
-<ul>
-<li>Quad-core AMD GX-415GA at 1.5 GHz</li>
-<li>AMD Radeon HD 8330E integrated GPU, using what looks like slightly under 512MB for VRAM</li>
-<li>16 GB DDR3 (2x8GB SODIMM, running at 1600 MT/s, 64 bit data bus width)</li>
-</ul>
-<h3>Why?</h3>
-<p>To see if I can! All that GPU hardware is just sitting idle anyways...</p>
-<h3>How?</h3>
-<p>Well, I had an LLM talk me through it...</p>
-<p>The neat thing is, llama.cpp can work with Vulkan 1.2, and this GPU supports it. In fact, a lot of GPUs, even some integrated GPUs like this one, support it.</p>
-<p>For starters, I got this up and running in Docker on the CPU, but that only got 1 token per second, so I moved on to figuring out how to switch to the <code>vulkan</code> version of the llama server image.</p>
-<ol>
-<li>Install firmware-amd-graphics and radeontop for monitoring with <code>sudo apt install firmware-amd-graphics radeontop</code></li>
-<li>set linux kernel modprobe configs to use the new amd driver (and <em>not</em> the radeon driver)</li>
-</ol>
-<pre><code># bash
-echo 'options amdgpu cik_support=1' | sudo tee /etc/modprobe.d/amdgpu.conf
-echo 'blacklist radeon' | sudo tee /etc/modprobe.d/radeon.conf
-sudo update-initramfs -u -k all
-sudo reboot
+<h1><a href="/blog/making-the-smart-light-bulb-turn-on-when-you-flip-the-switch/">How to make your Tasmota smart lightbulb turn on reliably</a></h1>
+<p class="meta">Published on 2026-11-05 by <b>David Norton</b></p>
+<h3>Huh?</h3>
+<p>For those not in the know, many smart lightbulbs remember their previous setting. If you use software to turn the light off at the bulb, then flip the switch on the wall off, the next person who flips the wall switch back on will be disappointed with no light. This is annoying when it happens to you once a week.</p>
+<h3>Tasmota Rules</h3>
+<p>My light bulbs run Tasmota, and in Tasmota, from the console in the web UI, you can set up &quot;rules&quot; (it is basically a trigger).</p>
+<p>And then, you can queue a series of steps with <code>Backlog</code>.</p>
+<p>So, we can create a rule that will trigger on boot, that will run a series of steps:</p>
+<p><code>Rule1 ON Power1#Boot DO Backlog Dimmer0 30; Power1; ENDON;</code></p>
+<p>In English this reads <em>Rule1 triggers ON boot (startup, like, when power flows in from the wall), and has a backlog (queue) of commands: first set the target brightness to 30 percent, then turn the lightbulb on.</em></p>
+<p>And then to enable the rule (it apparently starts disabled?), you run <code>Rule1 1</code></p>
+<p>The 30% brightness is so that if we flip the light on early in the morning before the sun is up, we are not blinded with full power.</p>
+<p>Additionally, we realized we also want to default the color back to a warm-white, because if the lightbulb was previously set to a different color (red, blue, etc) then we would have a very off-color morning.</p>
+<p>You can query your available color range with <code>CTRange</code> (which for me returns 153-500), and then you can set the color temperature of the light with <code>CT 499</code> or whatever you like. Lower numbers are colder, higher numbers are warmer. Not sure why the numbers are not in Kelvin (apparently this color temperature range is measured in &quot;mireds&quot;).</p>
+<p>Again, to enable the rule you must then run <code>Rule1 1</code></p>
+<h3>The fix to make the smartbulb turn on like a normal light</h3>
+<p><em>30 percent brightness, warmest white possible</em></p>
+<p><em>In the WebUI, click the console button, and then run these two commands</em></p>
+<pre><code>Rule1 ON Power1#Boot DO Backlog Dimmer0 30; CT 499; Power1; ENDON;
+
+Rule1 1
 </code></pre>
-<p>After reboot, <code>lsmod | grep amdgpu</code> should show several <code>amdgpu</code> entries (and presumably no radeon entries).</p>
-<ol start="3">
-<li>I decided to place the whole thing in a docker compose file, since nearly everything else on the server is in docker compose, so I ended up with the following</li>
-</ol>
-<pre><code># docker-compose.yml
-
-services:
-    llama-serve:
-      command: [          
-          '-hf', 'bartowski/Qwen2.5-0.5B-Instruct-GGUF:Q8_0', # about 531 megabytes
-          '-c', '32768',
-          '--host', '0.0.0.0',
-          '--port', '8080',
-          '-ngl', '999',
-          '-np', '2',
-          '-ctk', 'f16',
-          '-ctv', 'f16',
-          '--temp', '1.0',
-          '--top-k', '40',
-          '--top-p', '0.9',
-          '--min-p', '0.05',
-          '--repeat-penalty', '1.05',
-          '--frequency-penalty','1.05',
-          '--presence-penalty','1.05',
-          '--kv-unified',
-          '-fa', 'on',
-          '--no-mmproj-offload',
-          '--reasoning', 'off']
-
-      image: 'ghcr.io/ggml-org/llama.cpp:server-vulkan' 
-      restart: no    #turned off to avoid the container thrashing if GPU unavailable
-      mem_limit: 10G
-      cpus: 2
-      environment:
-          # where llama server will store models
-          - LLAMA_CACHE=/root/.cache/llama.cpp
-          - GGML_VK_PREFER_HOST_MEMORY=1 #uses main memory instead of the iGPU allocation
-
-      devices:
-          - /dev/dri
-      ports:
-        - target: 8080 
-          published: 8090 
-          protocol: tcp
-
-      volumes:         
-          - '/host/path/to/models:/root/.cache/llama.cpp' 
-
-          # the container's side of the path is managed by the LLAMA_CACHE variable described above
-          # I believe LLAMA_CACHE needs to be defined 
-          # for the `-hf` hugging face repository naming convention to be usable.
- 
-</code></pre>
-<p><em>Note:  I had tried LiquidAI/LFM2.5-350M and that ran at about 20 generated tokens per second, but it really <strong>really</strong> expects to use tool-calls and I just had no tools for it to call, so it would refuse to answer without a temperature of '2.0' ... Qwen 2.5 0.5B is bigger and slower to generate tokens on this hardware, but is far more willing to jump in and answer the user's question without tooling.</em></p>
-<h3>Results</h3>
-<p>It worked!</p>
-<p>In the end, Qwen2.5-0.5B , with Q8_0 model quantization,  f16 K/V cache quantization, and a max context of 32,768 tokens, gives me 7.1 tokens generated per second early in the conversation.</p>
-<p>I tried smaller quants and the intelligence rapidly degraded, so I left the model and KV cache quantization as large as I could manage.</p>
-<p>Running <code>sudo radeontop</code> does indeed show memory usage at 467 MB / 491 MB VRAM (95.21%) , 694 MB / 7705 MB GTT (9.00%), and a graphics pipe utilization bouncing between 93% and 97% when generating tokens . Looking at docker stats, the container shows a memory utilization (at low context usage) of 130 MB . Apparently the video RAM (VRAM) and Graphics Translation Table (GTT) don't count towards docker's listed memory usage. Something to keep in mind I guess, not to assume that the docker stats for the container tell the whole story.</p>
-<h3>Addendum</h3>
-<p>2026-11-05: A single tensor apparently cannot be split across VRAM allocation and the Graphics Translation Table, so to get even larger models with wider tensors, it seems that enabling   GGML_VK_PREFER_HOST_MEMORY=1 would move everything into the GTT.</p>
-<p>Enabling this setting allowed me to run bartowski/Qwen_Qwen3.5-0.8B-GGUF:Q8_0 with 262144 token context and again f16 KV quantization, with a vision system that I could (very slowly) use for OCR. VRAM now shows 24 MB / 491 MB (5%), Graphics Translation Table 5001 MB / 7705 MB (65%).  Prompt Processing was about 29 tps to start, and generation is about 5 tps. Granted, it is slow and not very clever, but still, it worked.</p>
-<p>2026-11-05: (corrected a few minor typos and one omitted word)</p>
+<h3>Disabling the rule</h3>
+<p>If for some reason you need to disable the rule, run <code>Rule1 0</code></p>
+<h3>Useful links</h3>
+<p><a href="https://tasmota.github.io/docs/Rules/">Tasmota Rules</a></p>
+<p><a href="https://tasmota.github.io/docs/P1-Smart-Meter/#tasmota-settings">An example of Power1 Boot</a></p>
+<p><a href="https://tasmota.github.io/docs/Lights/#with-webui">Tasmota Light settings</a></p>
 
 </article>
 

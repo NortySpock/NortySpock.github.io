@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>How to make your Tasmota smart lightbulb turn on reliably - A blog about learning, teaching, and intuition.</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+
+<body id="making-the-smart-light-bulb-turn-on-when-you-flip-the-switch">
+
+<nav>
+<section>
+    <span class="home">
+        <a href="/">Home</a>
+    </span>
+    <span class="links">
+        <a href="/blog/">Blog</a>
+        <a href="/about/">About</a>
+    </span>
+</section>
+</nav>
+
+<main>
+<article>
+<h1><a href="/blog/making-the-smart-light-bulb-turn-on-when-you-flip-the-switch/">How to make your Tasmota smart lightbulb turn on reliably</a></h1>
+<p class="meta">Published on 2026-11-05 by <b>David Norton</b></p>
+<h3>Huh?</h3>
+<p>For those not in the know, many smart lightbulbs remember their previous setting. If you use software to turn the light off at the bulb, then flip the switch on the wall off, the next person who flips the wall switch back on will be disappointed with no light. This is annoying when it happens to you once a week.</p>
+<h3>Tasmota Rules</h3>
+<p>My light bulbs run Tasmota, and in Tasmota, from the console in the web UI, you can set up &quot;rules&quot; (it is basically a trigger).</p>
+<p>And then, you can queue a series of steps with <code>Backlog</code>.</p>
+<p>So, we can create a rule that will trigger on boot, that will run a series of steps:</p>
+<p><code>Rule1 ON Power1#Boot DO Backlog Dimmer0 30; Power1; ENDON;</code></p>
+<p>In English this reads <em>Rule1 triggers ON boot (startup, like, when power flows in from the wall), and has a backlog (queue) of commands: first set the target brightness to 30 percent, then turn the lightbulb on.</em></p>
+<p>And then to enable the rule (it apparently starts disabled?), you run <code>Rule1 1</code></p>
+<p>The 30% brightness is so that if we flip the light on early in the morning before the sun is up, we are not blinded with full power.</p>
+<p>Additionally, we realized we also want to default the color back to a warm-white, because if the lightbulb was previously set to a different color (red, blue, etc) then we would have a very off-color morning.</p>
+<p>You can query your available color range with <code>CTRange</code> (which for me returns 153-500), and then you can set the color temperature of the light with <code>CT 499</code> or whatever you like. Lower numbers are colder, higher numbers are warmer. Not sure why the numbers are not in Kelvin (apparently this color temperature range is measured in &quot;mireds&quot;).</p>
+<p>Again, to enable the rule you must then run <code>Rule1 1</code></p>
+<h3>The fix to make the smartbulb turn on like a normal light</h3>
+<p><em>30 percent brightness, warmest white possible</em></p>
+<p><em>In the WebUI, click the console button, and then run these two commands</em></p>
+<pre><code>Rule1 ON Power1#Boot DO Backlog Dimmer0 30; CT 499; Power1; ENDON;
+
+Rule1 1
+</code></pre>
+<h3>Disabling the rule</h3>
+<p>If for some reason you need to disable the rule, run <code>Rule1 0</code></p>
+<h3>Useful links</h3>
+<p><a href="https://tasmota.github.io/docs/Rules/">Tasmota Rules</a></p>
+<p><a href="https://tasmota.github.io/docs/P1-Smart-Meter/#tasmota-settings">An example of Power1 Boot</a></p>
+<p><a href="https://tasmota.github.io/docs/Lights/#with-webui">Tasmota Light settings</a></p>
+
+</article>
+
+</main>
+
+<footer>
+<section>
+<p>&copy; 2026 David Norton</p>
+<p>
+    <a href="https://github.com/NortySpock">GitHub</a>
+    <a href="https://www.linkedin.com/in/david-norton-4b156a2b/">LinkedIn</a>
+</p>
+</section>
+</footer>
+
+</body>
+</html>
