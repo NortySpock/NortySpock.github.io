@@ -2,7 +2,7 @@
 
 ### What? 
 
-Running Qwen2.5-0.5B-Instruct-GGUF:Q8_0 on a AMD Radeon HD 8330E at 7.1 generated tokens per second
+Running Qwen2.5-0.5B-Instruct-GGUF:Q8_0 on an AMD Radeon HD 8330E at 7.1 generated tokens per second
 
 This GPU is a weaker cousin of the GPU on the (2013) Xbox One. 
 
@@ -66,12 +66,14 @@ services:
           '--reasoning', 'off']
 
       image: 'ghcr.io/ggml-org/llama.cpp:server-vulkan' 
-      restart: no    #turned off to avoid the countainer thrashing if GPU unavailable
+      restart: no    #turned off to avoid the container thrashing if GPU unavailable
       mem_limit: 10G
       cpus: 2
       environment:
-          # where llama server will store 
+          # where llama server will store models
           - LLAMA_CACHE=/root/.cache/llama.cpp
+          - GGML_VK_PREFER_HOST_MEMORY=1 #uses main memory instead of the iGPU allocation
+
       devices:
           - /dev/dri
       ports:
@@ -88,7 +90,7 @@ services:
  
 ```
 
-_Note:  I had tried LiquidAI/LFM2.5-350M and that ran at about 20 generated tokens per second, but it really **really** expects to use tool-calls and I just had no tools for it to call, so it would refuse to answer without a temperature of '2.0' ... Qwen 0.5B is bigger and slower to generate tokens on this hardware, but is far more willing to jump in and answer the user's question without tooling._
+_Note:  I had tried LiquidAI/LFM2.5-350M and that ran at about 20 generated tokens per second, but it really **really** expects to use tool-calls and I just had no tools for it to call, so it would refuse to answer without a temperature of '2.0' ... Qwen 2.5 0.5B is bigger and slower to generate tokens on this hardware, but is far more willing to jump in and answer the user's question without tooling._
 
 
 ### Results
@@ -99,4 +101,11 @@ In the end, Qwen2.5-0.5B , with Q8_0 model quantization,  f16 K/V cache quantiza
 
 I tried smaller quants and the intelligence rapidly degraded, so I left the model and KV cache quantization as large as I could manage.
 
-Running `sudo radeontop` does indeed show memory usage at 467M / 491M VRAM (95.21%) , 694M / 7705M GTT (9.00%), and a graphics pipe utilization bouncing between 93% and 97% when generating tokens . Looking at docker stats, the container shows a memory utilization (at low context usage) of 130MB . Apparently the video RAM (VRAM) and Graphics Translation Table (GTT) don't count towards docker's listed memory usage. Something to keep in mind I guess, not to assume that the docker stats for the container tell the whole story.
+Running `sudo radeontop` does indeed show memory usage at 467 MB / 491 MB VRAM (95.21%) , 694 MB / 7705 MB GTT (9.00%), and a graphics pipe utilization bouncing between 93% and 97% when generating tokens . Looking at docker stats, the container shows a memory utilization (at low context usage) of 130 MB . Apparently the video RAM (VRAM) and Graphics Translation Table (GTT) don't count towards docker's listed memory usage. Something to keep in mind I guess, not to assume that the docker stats for the container tell the whole story.
+
+### Addendum
+2026-11-05: A single tensor apparently cannot be split across VRAM allocation and the Graphics Translation Table, so to get even larger models with wider tensors, it seems that enabling   GGML_VK_PREFER_HOST_MEMORY=1 would move everything into the GTT.
+
+Enabling this setting allowed me to run bartowski/Qwen_Qwen3.5-0.8B-GGUF:Q8_0 with 262144 token context and again f16 KV quantization, with a vision system that I could (very slowly) use for OCR. VRAM now shows 24 MB / 491 MB (5%), Graphics Translation Table 5001 MB / 7705 MB (65%).  Prompt Processing was about 29 tps to start, and generation is about 5 tps. Granted, it is slow and not very clever, but still, it worked.
+
+2026-11-05: (corrected a few minor typos and one omitted word)

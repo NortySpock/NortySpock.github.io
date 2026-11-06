@@ -12,7 +12,7 @@
 <description>
 <![CDATA[
 <p>
-What? Running Qwen2.5-0.5B-Instruct-GGUF:Q8_0 on a AMD Radeon HD 8330E at 7.1 generated tokens per second This GPU is a weaker cousin of the GPU on&nbsp;<a href="http://localhost:4000/blog/running-a-language-model-on-an-AMD-Radeon-HD-8330E-iGPU/">...</a>
+What? Running Qwen2.5-0.5B-Instruct-GGUF:Q8_0 on an AMD Radeon HD 8330E at 7.1 generated tokens per second This GPU is a weaker cousin of the GPU on&nbsp;<a href="http://localhost:4000/blog/running-a-language-model-on-an-AMD-Radeon-HD-8330E-iGPU/">...</a>
 </p>
 <p><a href="http://localhost:4000/blog/running-a-language-model-on-an-AMD-Radeon-HD-8330E-iGPU/">Read More</a></p>
 ]]>
